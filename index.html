@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>我的链接主页</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-bg"></div>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span id="site-title">我的链接主页</span>
+      </div>
+      <nav class="nav-links">
+        <a href="./index.html" aria-current="page">主页</a>
+        <a href="./profile.html">个人信息</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1 id="hero-title">高频链接，一页直达</h1>
+        <p id="hero-desc">将常用工具聚合到一个页面，支持分类、搜索、快捷键和自定义管理。</p>
+        <div class="hero-actions">
+          <input
+            id="search-input"
+            class="search-input"
+            type="search"
+            placeholder="搜索链接名称或分类（按 / 快速聚焦）"
+            autocomplete="off"
+          />
+          <button id="add-link-btn" class="btn btn-primary" type="button">新增链接</button>
+          <button id="export-btn" class="btn" type="button">导出配置</button>
+          <button id="import-btn" class="btn" type="button">导入配置</button>
+          <button id="reset-btn" class="btn btn-danger" type="button">恢复默认</button>
+          <input id="import-file-input" type="file" accept=".json,application/json" hidden />
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>分类</h2>
+          <span id="link-count"></span>
+        </div>
+        <div id="category-chips" class="chips"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>快速访问</h2>
+          <span class="hint">按数字 1-9 可直接打开当前列表前 9 个链接</span>
+        </div>
+        <div id="links-grid" class="links-grid"></div>
+      </section>
+    </main>
+
+    <dialog id="link-dialog" class="link-dialog">
+      <form id="link-form" method="dialog">
+        <h3 id="dialog-title">新增链接</h3>
+        <input id="link-id" type="hidden" />
+
+        <label>
+          名称
+          <input id="link-name" type="text" required maxlength="40" />
+        </label>
+        <label>
+          URL
+          <input id="link-url" type="url" required placeholder="https://example.com" />
+        </label>
+        <label>
+          分类
+          <input id="link-category" type="text" required maxlength="20" placeholder="工具 / 学习 / 社交..." />
+        </label>
+        <label>
+          图标（emoji，可选）
+          <input id="link-icon" type="text" maxlength="2" placeholder="🚀" />
+        </label>
+
+        <menu>
+          <button type="button" id="cancel-dialog-btn" class="btn">取消</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <template id="link-card-template">
+      <article class="link-card">
+        <a class="link-main" target="_blank" rel="noreferrer noopener">
+          <span class="link-icon"></span>
+          <span class="link-meta">
+            <strong class="link-name"></strong>
+            <small class="link-category"></small>
+          </span>
+          <span class="link-index"></span>
+        </a>
+        <div class="link-actions">
+          <button type="button" class="icon-btn edit-btn" title="编辑">编辑</button>
+          <button type="button" class="icon-btn delete-btn" title="删除">删除</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
