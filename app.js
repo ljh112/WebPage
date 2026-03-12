@@ -1,10 +1,30 @@
 const STORAGE_KEY = "personal-portal-config-v1";
 const ALL_CATEGORY = "全部";
+const DEFAULT_SEARCH_ENGINE = "google";
+const SEARCH_ENGINES = {
+  google: {
+    label: "Google",
+    buildUrl: (keyword) => `https://www.google.com/search?q=${encodeURIComponent(keyword)}`
+  },
+  bing: {
+    label: "Bing",
+    buildUrl: (keyword) => `https://www.bing.com/search?q=${encodeURIComponent(keyword)}`
+  },
+  baidu: {
+    label: "百度",
+    buildUrl: (keyword) => `https://www.baidu.com/s?wd=${encodeURIComponent(keyword)}`
+  },
+  duckduckgo: {
+    label: "DuckDuckGo",
+    buildUrl: (keyword) => `https://duckduckgo.com/?q=${encodeURIComponent(keyword)}`
+  }
+};
 
 const defaultConfig = {
   siteTitle: "我的链接主页",
   heroTitle: "高频链接，一页直达",
   heroDesc: "将常用工具聚合到一个页面，支持分类、搜索、快捷键和自定义管理。",
+  searchEngine: DEFAULT_SEARCH_ENGINE,
   links: [
     { id: "1", name: "Gmail", url: "https://mail.google.com", category: "邮件", icon: "✉️" },
     { id: "2", name: "GitHub", url: "https://github.com", category: "开发", icon: "🐙" },
@@ -27,6 +47,9 @@ const refs = {
   chips: document.getElementById("category-chips"),
   grid: document.getElementById("links-grid"),
   template: document.getElementById("link-card-template"),
+  webSearchEngine: document.getElementById("web-search-engine"),
+  webSearchInput: document.getElementById("web-search-input"),
+  webSearchBtn: document.getElementById("web-search-btn"),
   searchInput: document.getElementById("search-input"),
   addLinkBtn: document.getElementById("add-link-btn"),
   exportBtn: document.getElementById("export-btn"),
@@ -56,6 +79,20 @@ render();
 bindEvents();
 
 function bindEvents() {
+  refs.webSearchBtn.addEventListener("click", submitWebSearch);
+  refs.webSearchInput.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+    event.preventDefault();
+    submitWebSearch();
+  });
+  refs.webSearchEngine.addEventListener("change", () => {
+    state.config.searchEngine = getSearchEngineId(refs.webSearchEngine.value);
+    saveConfig();
+    syncWebSearchEngineUI();
+  });
+
   refs.searchInput.addEventListener("input", (event) => {
     state.query = event.target.value.trim().toLowerCase();
     render();
@@ -130,6 +167,7 @@ function sanitizeConfig(raw) {
     siteTitle: stringOrFallback(raw.siteTitle, fallback.siteTitle),
     heroTitle: stringOrFallback(raw.heroTitle, fallback.heroTitle),
     heroDesc: stringOrFallback(raw.heroDesc, fallback.heroDesc),
+    searchEngine: getSearchEngineId(raw.searchEngine),
     links: Array.isArray(raw.links) ? raw.links : fallback.links
   };
 
@@ -182,10 +220,41 @@ function normalizeUrl(url) {
   }
 }
 
+function getSearchEngineId(rawEngineId) {
+  const engineId = String(rawEngineId || "").trim().toLowerCase();
+  if (Object.prototype.hasOwnProperty.call(SEARCH_ENGINES, engineId)) {
+    return engineId;
+  }
+  return DEFAULT_SEARCH_ENGINE;
+}
+
+function submitWebSearch() {
+  const keyword = refs.webSearchInput.value.trim();
+  if (!keyword) {
+    refs.webSearchInput.focus();
+    return;
+  }
+
+  const engineId = getSearchEngineId(refs.webSearchEngine.value);
+  state.config.searchEngine = engineId;
+  saveConfig();
+
+  const url = SEARCH_ENGINES[engineId].buildUrl(keyword);
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
 function applyConfigText() {
   refs.siteTitle.textContent = state.config.siteTitle;
   refs.heroTitle.textContent = state.config.heroTitle;
   refs.heroDesc.textContent = state.config.heroDesc;
+  syncWebSearchEngineUI();
+}
+
+function syncWebSearchEngineUI() {
+  const engineId = getSearchEngineId(state.config.searchEngine);
+  state.config.searchEngine = engineId;
+  refs.webSearchEngine.value = engineId;
+  refs.webSearchInput.placeholder = `使用 ${SEARCH_ENGINES[engineId].label} 搜索`;
 }
 
 function render() {

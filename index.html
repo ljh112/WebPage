@@ -24,11 +24,27 @@
         <h1 id="hero-title">高频链接，一页直达</h1>
         <p id="hero-desc">将常用工具聚合到一个页面，支持分类、搜索、快捷键和自定义管理。</p>
         <div class="hero-actions">
+          <div class="web-search-group">
+            <select id="web-search-engine" class="search-engine-select" aria-label="选择搜索引擎">
+              <option value="google">Google</option>
+              <option value="bing">Bing</option>
+              <option value="baidu">百度</option>
+              <option value="duckduckgo">DuckDuckGo</option>
+            </select>
+            <input
+              id="web-search-input"
+              class="search-input web-search-input"
+              type="search"
+              placeholder="输入关键词后按回车或点击搜索"
+              autocomplete="off"
+            />
+            <button id="web-search-btn" class="btn btn-primary" type="button">网页搜索</button>
+          </div>
           <input
             id="search-input"
             class="search-input"
             type="search"
-            placeholder="搜索链接名称或分类（按 / 快速聚焦）"
+            placeholder="筛选链接名称或分类（按 / 快速聚焦）"
             autocomplete="off"
           />
           <button id="add-link-btn" class="btn btn-primary" type="button">新增链接</button>
