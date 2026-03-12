@@ -46,3 +46,8 @@ python -m http.server 8080
 - 给主页加“分组排序、拖拽排序”
 - 增加“工作模式 / 生活模式”多套配置
 - 把 `profile.html` 做成完整个人简历页或作品集页
+
+## 学习笔记
+
+- Cloudflare Access + GitHub Pages 私密访问实操：
+  - `docs/cloudflare-access-github-pages-notes.md`
