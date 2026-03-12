@@ -1,53 +1,151 @@
 const STORAGE_KEY = "personal-portal-config-v1";
 const ALL_CATEGORY = "全部";
 const DEFAULT_SEARCH_ENGINE = "google";
+const CLOCK_FORMATTER = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  weekday: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false
+});
 const SEARCH_ENGINES = {
   google: {
     label: "Google",
+    icon: "./assets/icons/search-engines/google.png",
     buildUrl: (keyword) => `https://www.google.com/search?q=${encodeURIComponent(keyword)}`
   },
   bing: {
     label: "Bing",
+    icon: "./assets/icons/search-engines/bing.png",
     buildUrl: (keyword) => `https://www.bing.com/search?q=${encodeURIComponent(keyword)}`
   },
   baidu: {
     label: "百度",
+    icon: "./assets/icons/search-engines/baidu.png",
     buildUrl: (keyword) => `https://www.baidu.com/s?wd=${encodeURIComponent(keyword)}`
   },
   duckduckgo: {
     label: "DuckDuckGo",
+    icon: "./assets/icons/search-engines/duckduckgo.png",
     buildUrl: (keyword) => `https://duckduckgo.com/?q=${encodeURIComponent(keyword)}`
   }
 };
 
 const defaultConfig = {
-  siteTitle: "我的链接主页",
-  heroTitle: "高频链接，一页直达",
-  heroDesc: "将常用工具聚合到一个页面，支持分类、搜索、快捷键和自定义管理。",
+  siteTitle: "ljhiokc 的主页",
+  heroTitle: "常用入口，一页速达",
+  heroDesc: "把日常网站与工具收进一个面板，搜索、分类、拖拽排序都更顺手。",
   searchEngine: DEFAULT_SEARCH_ENGINE,
   links: [
-    { id: "1", name: "Gmail", url: "https://mail.google.com", category: "邮件", icon: "✉️" },
-    { id: "2", name: "GitHub", url: "https://github.com", category: "开发", icon: "🐙" },
-    { id: "3", name: "Notion", url: "https://www.notion.so", category: "笔记", icon: "📝" },
-    { id: "4", name: "Google Drive", url: "https://drive.google.com", category: "云盘", icon: "☁️" },
-    { id: "5", name: "YouTube", url: "https://www.youtube.com", category: "学习", icon: "▶️" },
-    { id: "6", name: "ChatGPT", url: "https://chatgpt.com", category: "AI", icon: "🤖" },
-    { id: "7", name: "飞书", url: "https://www.feishu.cn", category: "协作", icon: "💬" },
-    { id: "8", name: "Bilibili", url: "https://www.bilibili.com", category: "学习", icon: "📺" },
-    { id: "9", name: "掘金", url: "https://juejin.cn", category: "开发", icon: "💡" },
-    { id: "10", name: "V2EX", url: "https://www.v2ex.com", category: "社区", icon: "🧭" }
+    {
+      id: "1",
+      name: "Gmail",
+      url: "https://mail.google.com",
+      category: "邮件",
+      icon: "./assets/icons/links/gmail.png"
+    },
+    {
+      id: "2",
+      name: "USTC Mail",
+      url: "https://mail.ustc.edu.cn/",
+      category: "邮件",
+      icon: "./assets/icons/links/ustc-mail.png"
+    },
+    {
+      id: "3",
+      name: "Notion",
+      url: "https://www.notion.so",
+      category: "笔记",
+      icon: "./assets/icons/links/notion.png"
+    },
+    {
+      id: "4",
+      name: "谷歌学术",
+      url: "https://scholar.google.com",
+      category: "学术",
+      icon: "./assets/icons/links/google-scholar.png"
+    },
+    {
+      id: "5",
+      name: "USTC LaTeX",
+      url: "https://latex.ustc.edu.cn/",
+      category: "学术",
+      icon: "./assets/icons/links/latex.svg"
+    },
+    {
+      id: "6",
+      name: "GitHub",
+      url: "https://github.com",
+      category: "开发",
+      icon: "./assets/icons/links/github.png"
+    },
+    {
+      id: "7",
+      name: "掘金",
+      url: "https://juejin.cn",
+      category: "开发",
+      icon: "./assets/icons/links/juejin.png"
+    },
+    {
+      id: "8",
+      name: "ChatGPT",
+      url: "https://chatgpt.com",
+      category: "AI",
+      icon: "./assets/icons/links/chatgpt.png"
+    },
+    {
+      id: "9",
+      name: "飞书",
+      url: "https://www.feishu.cn",
+      category: "协作",
+      icon: "./assets/icons/links/feishu.png"
+    },
+    {
+      id: "10",
+      name: "知乎",
+      url: "https://www.zhihu.com",
+      category: "社区",
+      icon: "./assets/icons/links/zhihu.png"
+    },
+    {
+      id: "11",
+      name: "V2EX",
+      url: "https://www.v2ex.com",
+      category: "社区",
+      icon: "./assets/icons/links/v2ex.png"
+    },
+    {
+      id: "12",
+      name: "YouTube",
+      url: "https://www.youtube.com",
+      category: "学习",
+      icon: "./assets/icons/links/youtube.png"
+    },
+    {
+      id: "13",
+      name: "Bilibili",
+      url: "https://www.bilibili.com",
+      category: "学习",
+      icon: "./assets/icons/links/bilibili.png"
+    }
   ]
 };
 
 const refs = {
   siteTitle: document.getElementById("site-title"),
+  liveClock: document.getElementById("live-clock"),
   heroTitle: document.getElementById("hero-title"),
   heroDesc: document.getElementById("hero-desc"),
+  heroStatus: document.getElementById("hero-status"),
   linkCount: document.getElementById("link-count"),
   chips: document.getElementById("category-chips"),
   grid: document.getElementById("links-grid"),
   template: document.getElementById("link-card-template"),
   webSearchEngine: document.getElementById("web-search-engine"),
+  webSearchEngineIcon: document.getElementById("web-search-engine-icon"),
   webSearchInput: document.getElementById("web-search-input"),
   webSearchBtn: document.getElementById("web-search-btn"),
   searchInput: document.getElementById("search-input"),
@@ -67,16 +165,21 @@ const refs = {
   cancelDialogBtn: document.getElementById("cancel-dialog-btn")
 };
 
+const faviconCache = new Map();
+
 const state = {
   config: loadConfig(),
   selectedCategory: ALL_CATEGORY,
   query: "",
-  visibleLinks: []
+  visibleLinks: [],
+  draggingLinkId: ""
 };
 
 applyConfigText();
 render();
 bindEvents();
+startLiveClock();
+bindAmbientPointer();
 
 function bindEvents() {
   refs.webSearchBtn.addEventListener("click", submitWebSearch);
@@ -111,6 +214,9 @@ function bindEvents() {
 
   refs.form.addEventListener("submit", saveFromDialog);
 
+  refs.grid.addEventListener("dragover", handleGridDragOver);
+  refs.grid.addEventListener("drop", handleGridDrop);
+
   document.addEventListener("keydown", (event) => {
     const isTyping =
       event.target instanceof HTMLInputElement ||
@@ -135,6 +241,10 @@ function bindEvents() {
   });
 }
 
+function cloneDefaultConfig() {
+  return JSON.parse(JSON.stringify(defaultConfig));
+}
+
 function loadConfig() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) {
@@ -143,18 +253,39 @@ function loadConfig() {
 
   try {
     const parsed = JSON.parse(raw);
-    return sanitizeConfig(parsed);
+    const configCandidate = extractConfigFromAnyPayload(parsed);
+    return sanitizeConfig(configCandidate);
   } catch {
     return cloneDefaultConfig();
   }
 }
 
-function saveConfig() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.config));
+function extractConfigFromAnyPayload(payload) {
+  if (!payload || typeof payload !== "object") {
+    return payload;
+  }
+
+  if (!payload.workspaces || typeof payload.workspaces !== "object") {
+    return payload;
+  }
+
+  const activeId = String(payload.activeWorkspaceId || "study").trim().toLowerCase();
+  const selectedWorkspace = payload.workspaces[activeId];
+  if (selectedWorkspace && typeof selectedWorkspace === "object") {
+    return selectedWorkspace;
+  }
+
+  const fallbackWorkspace = payload.workspaces.study;
+  if (fallbackWorkspace && typeof fallbackWorkspace === "object") {
+    return fallbackWorkspace;
+  }
+
+  const firstWorkspace = Object.values(payload.workspaces).find((item) => item && typeof item === "object");
+  return firstWorkspace || payload;
 }
 
-function cloneDefaultConfig() {
-  return JSON.parse(JSON.stringify(defaultConfig));
+function saveConfig() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.config));
 }
 
 function sanitizeConfig(raw) {
@@ -245,6 +376,7 @@ function submitWebSearch() {
 
 function applyConfigText() {
   refs.siteTitle.textContent = state.config.siteTitle;
+  document.title = state.config.siteTitle;
   refs.heroTitle.textContent = state.config.heroTitle;
   refs.heroDesc.textContent = state.config.heroDesc;
   syncWebSearchEngineUI();
@@ -252,9 +384,12 @@ function applyConfigText() {
 
 function syncWebSearchEngineUI() {
   const engineId = getSearchEngineId(state.config.searchEngine);
+  const engine = SEARCH_ENGINES[engineId];
   state.config.searchEngine = engineId;
   refs.webSearchEngine.value = engineId;
-  refs.webSearchInput.placeholder = `使用 ${SEARCH_ENGINES[engineId].label} 搜索`;
+  refs.webSearchInput.placeholder = `使用 ${engine.label} 搜索`;
+  refs.webSearchEngineIcon.src = engine.icon;
+  refs.webSearchEngineIcon.alt = "";
 }
 
 function render() {
@@ -288,6 +423,7 @@ function renderLinks() {
   });
 
   state.visibleLinks = links;
+  updateHeroStatus(links.length);
   refs.grid.innerHTML = "";
   refs.linkCount.textContent = `共 ${links.length} 条`;
 
@@ -310,16 +446,224 @@ function renderLinks() {
     const deleteBtn = card.querySelector(".delete-btn");
 
     anchor.href = link.url;
+    card.style.setProperty("--delay", `${Math.min(index, 12) * 42}ms`);
     name.textContent = link.name;
     category.textContent = link.category;
-    icon.textContent = link.icon || "🔗";
+    renderLinkIcon(icon, link.icon, link.name);
     indexText.textContent = index < 9 ? `[${index + 1}]` : "";
+
+    bindCardDragEvents(card, link.id);
 
     editBtn.addEventListener("click", () => openDialog(link));
     deleteBtn.addEventListener("click", () => deleteLink(link.id));
 
     refs.grid.appendChild(card);
   });
+}
+
+function updateHeroStatus(visibleCount) {
+  if (!refs.heroStatus) {
+    return;
+  }
+
+  const totalCount = state.config.links.length;
+  const currentCategory = state.selectedCategory === ALL_CATEGORY ? "全部分类" : state.selectedCategory;
+  refs.heroStatus.textContent = `${currentCategory} · 显示 ${visibleCount}/${totalCount} 个链接`;
+}
+
+function bindCardDragEvents(card, linkId) {
+  card.draggable = true;
+
+  card.addEventListener("dragstart", (event) => {
+    state.draggingLinkId = linkId;
+    card.classList.add("is-dragging");
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", linkId);
+    }
+  });
+
+  card.addEventListener("dragend", () => {
+    state.draggingLinkId = "";
+    clearDragClasses();
+  });
+
+  card.addEventListener("dragover", (event) => {
+    if (!state.draggingLinkId || state.draggingLinkId === linkId) {
+      return;
+    }
+    event.preventDefault();
+    card.classList.add("is-drop-target");
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = "move";
+    }
+  });
+
+  card.addEventListener("dragleave", () => {
+    card.classList.remove("is-drop-target");
+  });
+
+  card.addEventListener("drop", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const draggingId = state.draggingLinkId;
+    if (!draggingId || draggingId === linkId) {
+      return;
+    }
+
+    moveLinkInVisibleOrder(draggingId, linkId);
+    clearDragClasses();
+  });
+}
+
+function handleGridDragOver(event) {
+  if (!state.draggingLinkId) {
+    return;
+  }
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = "move";
+  }
+}
+
+function handleGridDrop(event) {
+  if (!state.draggingLinkId) {
+    return;
+  }
+  const onCard = event.target instanceof Element && event.target.closest(".link-card");
+  if (onCard) {
+    return;
+  }
+
+  event.preventDefault();
+  moveLinkToVisibleTail(state.draggingLinkId);
+  clearDragClasses();
+}
+
+function clearDragClasses() {
+  refs.grid.querySelectorAll(".link-card.is-dragging, .link-card.is-drop-target").forEach((card) => {
+    card.classList.remove("is-dragging");
+    card.classList.remove("is-drop-target");
+  });
+}
+
+function moveLinkInVisibleOrder(draggingId, targetId) {
+  const visibleIds = state.visibleLinks.map((link) => link.id);
+  const fromIndex = visibleIds.indexOf(draggingId);
+  const toIndex = visibleIds.indexOf(targetId);
+
+  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+    return;
+  }
+
+  const [movedId] = visibleIds.splice(fromIndex, 1);
+  visibleIds.splice(toIndex, 0, movedId);
+  applyVisibleOrder(visibleIds);
+  saveConfig();
+  render();
+}
+
+function moveLinkToVisibleTail(draggingId) {
+  const visibleIds = state.visibleLinks.map((link) => link.id);
+  const fromIndex = visibleIds.indexOf(draggingId);
+  if (fromIndex < 0 || fromIndex === visibleIds.length - 1) {
+    return;
+  }
+
+  const [movedId] = visibleIds.splice(fromIndex, 1);
+  visibleIds.push(movedId);
+  applyVisibleOrder(visibleIds);
+  saveConfig();
+  render();
+}
+
+function applyVisibleOrder(nextVisibleIds) {
+  const visibleSet = new Set(nextVisibleIds);
+  const linkById = new Map(state.config.links.map((link) => [link.id, link]));
+  let cursor = 0;
+
+  state.config.links = state.config.links.map((link) => {
+    if (!visibleSet.has(link.id)) {
+      return link;
+    }
+    const nextId = nextVisibleIds[cursor++];
+    return linkById.get(nextId) || link;
+  });
+}
+
+function startLiveClock() {
+  if (!refs.liveClock) {
+    return;
+  }
+
+  const updateClockText = () => {
+    const now = new Date();
+    const text = CLOCK_FORMATTER.format(now).replace(/\//g, ".");
+    refs.liveClock.textContent = text;
+  };
+
+  updateClockText();
+  window.setInterval(updateClockText, 1000);
+}
+
+function bindAmbientPointer() {
+  const root = document.documentElement;
+  if (!root) {
+    return;
+  }
+
+  let rafId = 0;
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+
+  const applyPosition = () => {
+    root.style.setProperty("--mx", `${mouseX}px`);
+    root.style.setProperty("--my", `${mouseY}px`);
+    rafId = 0;
+  };
+
+  window.addEventListener("pointermove", (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+    if (rafId) {
+      return;
+    }
+    rafId = window.requestAnimationFrame(applyPosition);
+  });
+}
+
+function isImageIcon(iconValue) {
+  if (!iconValue) {
+    return false;
+  }
+  const text = String(iconValue).trim();
+  if (!text) {
+    return false;
+  }
+  return /^(https?:\/\/|\.{1,2}\/|\/)/i.test(text) || /\.(png|svg|jpe?g|webp|gif|ico)(\?.*)?$/i.test(text);
+}
+
+function renderLinkIcon(container, iconValue, name) {
+  container.textContent = "";
+  if (!iconValue) {
+    container.textContent = "🔗";
+    return;
+  }
+
+  if (!isImageIcon(iconValue) && !String(iconValue).startsWith("data:image/")) {
+    container.textContent = iconValue;
+    return;
+  }
+
+  const img = document.createElement("img");
+  img.src = iconValue;
+  img.alt = `${name} 图标`;
+  img.loading = "lazy";
+  img.addEventListener("error", () => {
+    container.textContent = "🔗";
+  });
+  container.appendChild(img);
 }
 
 function openDialog(link) {
@@ -334,13 +678,13 @@ function openDialog(link) {
   refs.formName.focus();
 }
 
-function saveFromDialog(event) {
+async function saveFromDialog(event) {
   event.preventDefault();
 
   const id = refs.formId.value.trim();
   const name = refs.formName.value.trim();
   const category = refs.formCategory.value.trim();
-  const icon = refs.formIcon.value.trim();
+  const typedIcon = refs.formIcon.value.trim();
   const url = normalizeUrl(refs.formUrl.value.trim());
 
   if (!name || !category || !url) {
@@ -348,27 +692,101 @@ function saveFromDialog(event) {
     return;
   }
 
-  if (id) {
-    const target = state.config.links.find((link) => link.id === id);
-    if (target) {
-      target.name = name;
-      target.category = category;
-      target.url = url;
-      target.icon = icon;
-    }
-  } else {
-    state.config.links.unshift({
-      id: createId(),
-      name,
-      category,
-      url,
-      icon
-    });
+  const submitBtn = refs.form.querySelector('button[type="submit"]');
+  const submitBtnText = submitBtn ? submitBtn.textContent : "";
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "保存中...";
   }
 
-  saveConfig();
-  refs.dialog.close();
-  render();
+  try {
+    let icon = typedIcon;
+
+    if (!icon && id) {
+      const existing = state.config.links.find((link) => link.id === id);
+      icon = existing?.icon || "";
+    }
+
+    if (!icon) {
+      icon = await fetchFaviconDataUrl(url);
+    }
+
+    if (id) {
+      const target = state.config.links.find((link) => link.id === id);
+      if (target) {
+        target.name = name;
+        target.category = category;
+        target.url = url;
+        target.icon = icon;
+      }
+    } else {
+      state.config.links.unshift({
+        id: createId(),
+        name,
+        category,
+        url,
+        icon
+      });
+    }
+
+    saveConfig();
+    refs.dialog.close();
+    render();
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = submitBtnText;
+    }
+  }
+}
+
+async function fetchFaviconDataUrl(pageUrl) {
+  try {
+    const hostname = new URL(pageUrl).hostname;
+    if (!hostname) {
+      return "";
+    }
+
+    if (faviconCache.has(hostname)) {
+      return faviconCache.get(hostname);
+    }
+
+    const endpoint = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64`;
+    const response = await fetch(endpoint, { cache: "force-cache" });
+    if (!response.ok) {
+      return "";
+    }
+
+    const blob = await response.blob();
+    if (!blob.type.startsWith("image/")) {
+      return "";
+    }
+
+    if (blob.size < 150) {
+      return "";
+    }
+
+    const dataUrl = await blobToDataUrl(blob);
+    if (!dataUrl) {
+      return "";
+    }
+
+    faviconCache.set(hostname, dataUrl);
+    return dataUrl;
+  } catch {
+    return "";
+  }
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      resolve(typeof reader.result === "string" ? reader.result : "");
+    };
+    reader.onerror = () => resolve("");
+    reader.readAsDataURL(blob);
+  });
 }
 
 function deleteLink(id) {
@@ -418,13 +836,15 @@ async function importConfig(event) {
   try {
     const text = await file.text();
     const parsed = JSON.parse(text);
-    const nextConfig = sanitizeConfig(parsed);
-    if (!Array.isArray(nextConfig.links) || nextConfig.links.length === 0) {
+    const configCandidate = extractConfigFromAnyPayload(parsed);
+    const importedConfig = sanitizeConfig(configCandidate);
+
+    if (!Array.isArray(importedConfig.links) || importedConfig.links.length === 0) {
       alert("导入失败：配置中没有可用链接。");
       return;
     }
 
-    state.config = nextConfig;
+    state.config = importedConfig;
     state.selectedCategory = ALL_CATEGORY;
     state.query = "";
     refs.searchInput.value = "";

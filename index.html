@@ -3,7 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>我的链接主页</title>
+    <title>ljhiokc 的主页</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      try {
+        const key = "personal-portal-theme-v1";
+        const saved = localStorage.getItem(key);
+        if (saved) {
+          document.documentElement.dataset.theme = saved;
+        }
+      } catch {}
+    </script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -11,34 +26,49 @@
     <header class="topbar">
       <div class="brand">
         <span class="brand-dot"></span>
-        <span id="site-title">我的链接主页</span>
+        <span id="site-title">ljhiokc 的主页</span>
       </div>
-      <nav class="nav-links">
-        <a href="./index.html" aria-current="page">主页</a>
-        <a href="./profile.html">个人信息</a>
-      </nav>
+      <div class="topbar-right">
+        <div id="live-clock" class="clock-pill" aria-live="polite"></div>
+        <button id="theme-toggle-btn" class="theme-toggle" type="button" aria-label="切换主题"></button>
+        <nav class="nav-links">
+          <a href="./index.html" aria-current="page">主页</a>
+          <a href="./profile.html">个人信息</a>
+        </nav>
+      </div>
     </header>
 
     <main class="container">
       <section class="hero">
-        <h1 id="hero-title">高频链接，一页直达</h1>
-        <p id="hero-desc">将常用工具聚合到一个页面，支持分类、搜索、快捷键和自定义管理。</p>
+        <h1 id="hero-title">常用入口，一页速达</h1>
+        <p id="hero-desc">把日常网站与工具收进一个面板，搜索、分类、拖拽排序都更顺手。</p>
+        <p id="hero-status" class="hero-status"></p>
         <div class="hero-actions">
           <div class="web-search-group">
-            <select id="web-search-engine" class="search-engine-select" aria-label="选择搜索引擎">
-              <option value="google">Google</option>
-              <option value="bing">Bing</option>
-              <option value="baidu">百度</option>
-              <option value="duckduckgo">DuckDuckGo</option>
-            </select>
+            <label class="engine-picker" for="web-search-engine">
+              <img
+                id="web-search-engine-icon"
+                class="engine-icon"
+                src="./assets/icons/search-engines/google.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <select id="web-search-engine" class="search-engine-select" aria-label="选择搜索引擎">
+                <option value="google">Google</option>
+                <option value="bing">Bing</option>
+                <option value="baidu">百度</option>
+                <option value="duckduckgo">DuckDuckGo</option>
+              </select>
+              <span class="engine-caret" aria-hidden="true">▾</span>
+            </label>
             <input
               id="web-search-input"
               class="search-input web-search-input"
               type="search"
-              placeholder="输入关键词后按回车或点击搜索"
+              placeholder="输入关键词后按回车"
               autocomplete="off"
             />
-            <button id="web-search-btn" class="btn btn-primary" type="button">网页搜索</button>
+            <button id="web-search-btn" class="btn btn-primary" type="button">Go!</button>
           </div>
           <input
             id="search-input"
@@ -66,7 +96,7 @@
       <section class="panel">
         <div class="panel-head">
           <h2>快速访问</h2>
-          <span class="hint">按数字 1-9 可直接打开当前列表前 9 个链接</span>
+          <span class="hint">按数字 1-9 可直接打开前 9 个链接，拖拽卡片可排序</span>
         </div>
         <div id="links-grid" class="links-grid"></div>
       </section>
@@ -90,8 +120,8 @@
           <input id="link-category" type="text" required maxlength="20" placeholder="工具 / 学习 / 社交..." />
         </label>
         <label>
-          图标（emoji，可选）
-          <input id="link-icon" type="text" maxlength="2" placeholder="🚀" />
+          图标（emoji 或图片 URL/路径，可选）
+          <input id="link-icon" type="text" maxlength="200" placeholder="🚀 或 ./assets/icons/links/github.png" />
         </label>
 
         <menu>
@@ -118,6 +148,7 @@
       </article>
     </template>
 
+    <script src="./theme.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

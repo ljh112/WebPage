@@ -3,7 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>个人信息 | 我的链接主页</title>
+    <title>个人信息 | ljhiokc 的主页</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      try {
+        const key = "personal-portal-theme-v1";
+        const saved = localStorage.getItem(key);
+        if (saved) {
+          document.documentElement.dataset.theme = saved;
+        }
+      } catch {}
+    </script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -11,12 +26,15 @@
     <header class="topbar">
       <div class="brand">
         <span class="brand-dot"></span>
-        <span>我的链接主页</span>
+        <span>ljhiokc 的主页</span>
       </div>
-      <nav class="nav-links">
-        <a href="./index.html">主页</a>
-        <a href="./profile.html" aria-current="page">个人信息</a>
-      </nav>
+      <div class="topbar-right">
+        <button id="theme-toggle-btn" class="theme-toggle" type="button" aria-label="切换主题"></button>
+        <nav class="nav-links">
+          <a href="./index.html">主页</a>
+          <a href="./profile.html" aria-current="page">个人信息</a>
+        </nav>
+      </div>
     </header>
 
     <main class="container">
@@ -47,5 +65,6 @@
         </div>
       </section>
     </main>
+    <script src="./theme.js"></script>
   </body>
 </html>
