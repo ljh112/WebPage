@@ -48,6 +48,20 @@ const defaultConfig = {
       icon: "./assets/icons/links/gmail.png"
     },
     {
+      id: "6",
+      name: "GitHub",
+      url: "https://github.com",
+      category: "开发",
+      icon: "./assets/icons/links/github.png"
+    },
+    {
+      id: "4",
+      name: "谷歌学术",
+      url: "https://scholar.google.com",
+      category: "学术",
+      icon: "./assets/icons/links/google-scholar.png"
+    },
+    {
       id: "2",
       name: "USTC Mail",
       url: "https://mail.ustc.edu.cn/",
@@ -62,25 +76,11 @@ const defaultConfig = {
       icon: "./assets/icons/links/notion.png"
     },
     {
-      id: "4",
-      name: "谷歌学术",
-      url: "https://scholar.google.com",
-      category: "学术",
-      icon: "./assets/icons/links/google-scholar.png"
-    },
-    {
       id: "5",
       name: "USTC LaTeX",
       url: "https://latex.ustc.edu.cn/",
       category: "学术",
       icon: "./assets/icons/links/latex.svg"
-    },
-    {
-      id: "6",
-      name: "GitHub",
-      url: "https://github.com",
-      category: "开发",
-      icon: "./assets/icons/links/github.png"
     },
     {
       id: "7",
@@ -136,10 +136,10 @@ const defaultConfig = {
 
 const refs = {
   siteTitle: document.getElementById("site-title"),
+  displaySettings: document.getElementById("display-settings"),
   liveClock: document.getElementById("live-clock"),
   heroTitle: document.getElementById("hero-title"),
   heroDesc: document.getElementById("hero-desc"),
-  heroStatus: document.getElementById("hero-status"),
   linkCount: document.getElementById("link-count"),
   chips: document.getElementById("category-chips"),
   grid: document.getElementById("links-grid"),
@@ -149,6 +149,8 @@ const refs = {
   webSearchInput: document.getElementById("web-search-input"),
   webSearchBtn: document.getElementById("web-search-btn"),
   searchInput: document.getElementById("search-input"),
+  manageBtn: document.getElementById("manage-btn"),
+  manageControls: document.getElementById("manage-controls"),
   addLinkBtn: document.getElementById("add-link-btn"),
   exportBtn: document.getElementById("export-btn"),
   importBtn: document.getElementById("import-btn"),
@@ -172,6 +174,7 @@ const state = {
   selectedCategory: ALL_CATEGORY,
   query: "",
   visibleLinks: [],
+  managing: false,
   draggingLinkId: ""
 };
 
@@ -198,7 +201,16 @@ function bindEvents() {
 
   refs.searchInput.addEventListener("input", (event) => {
     state.query = event.target.value.trim().toLowerCase();
-    render();
+    renderLinks();
+  });
+
+  refs.manageBtn.addEventListener("click", () => {
+    state.managing = !state.managing;
+    refs.manageControls.hidden = !state.managing;
+    refs.manageBtn.setAttribute("aria-expanded", String(state.managing));
+    refs.manageBtn.textContent = state.managing ? "完成管理" : "管理链接";
+    clearDragState();
+    renderLinks();
   });
 
   refs.addLinkBtn.addEventListener("click", () => openDialog());
@@ -217,7 +229,24 @@ function bindEvents() {
   refs.grid.addEventListener("dragover", handleGridDragOver);
   refs.grid.addEventListener("drop", handleGridDrop);
 
+  document.addEventListener("click", (event) => {
+    if (refs.displaySettings.open && !refs.displaySettings.contains(event.target)) {
+      refs.displaySettings.open = false;
+    }
+  });
+
+  refs.displaySettings.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && refs.displaySettings.open) {
+      refs.displaySettings.open = false;
+      refs.displaySettings.querySelector("summary").focus();
+    }
+  });
+
   document.addEventListener("keydown", (event) => {
+    if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || refs.dialog.open) {
+      return;
+    }
+
     const isTyping =
       event.target instanceof HTMLInputElement ||
       event.target instanceof HTMLTextAreaElement ||
@@ -401,14 +430,17 @@ function renderCategoryChips() {
   const categories = [ALL_CATEGORY, ...new Set(state.config.links.map((link) => link.category))];
   refs.chips.innerHTML = "";
 
-  categories.forEach((category) => {
+  categories.forEach((category, index) => {
+    const selected = state.selectedCategory === category;
     const chip = document.createElement("button");
-    chip.className = `chip${state.selectedCategory === category ? " is-active" : ""}`;
+    chip.className = `chip${selected ? " is-active" : ""}`;
     chip.type = "button";
     chip.textContent = category;
+    chip.setAttribute("aria-pressed", String(selected));
     chip.addEventListener("click", () => {
       state.selectedCategory = category;
       render();
+      refs.chips.children[index].focus();
     });
     refs.chips.appendChild(chip);
   });
@@ -423,9 +455,8 @@ function renderLinks() {
   });
 
   state.visibleLinks = links;
-  updateHeroStatus(links.length);
   refs.grid.innerHTML = "";
-  refs.linkCount.textContent = `共 ${links.length} 条`;
+  refs.linkCount.textContent = `${links.length} 个链接`;
 
   if (links.length === 0) {
     const empty = document.createElement("p");
@@ -442,33 +473,51 @@ function renderLinks() {
     const name = card.querySelector(".link-name");
     const category = card.querySelector(".link-category");
     const indexText = card.querySelector(".link-index");
-    const editBtn = card.querySelector(".edit-btn");
-    const deleteBtn = card.querySelector(".delete-btn");
-
     anchor.href = link.url;
-    card.style.setProperty("--delay", `${Math.min(index, 12) * 42}ms`);
     name.textContent = link.name;
     category.textContent = link.category;
     renderLinkIcon(icon, link.icon, link.name);
     indexText.textContent = index < 9 ? `[${index + 1}]` : "";
 
-    bindCardDragEvents(card, link.id);
-
-    editBtn.addEventListener("click", () => openDialog(link));
-    deleteBtn.addEventListener("click", () => deleteLink(link.id));
+    if (state.managing) {
+      anchor.draggable = false;
+      bindCardManagement(card, link, index);
+    }
 
     refs.grid.appendChild(card);
   });
 }
 
-function updateHeroStatus(visibleCount) {
-  if (!refs.heroStatus) {
-    return;
-  }
+function bindCardManagement(card, link, index) {
+  const actions = card.querySelector(".link-actions");
+  const moveUp = actions.querySelector(".move-up-btn");
+  const moveDown = actions.querySelector(".move-down-btn");
+  const editBtn = actions.querySelector(".edit-btn");
+  const deleteBtn = actions.querySelector(".delete-btn");
 
-  const totalCount = state.config.links.length;
-  const currentCategory = state.selectedCategory === ALL_CATEGORY ? "全部分类" : state.selectedCategory;
-  refs.heroStatus.textContent = `${currentCategory} · 显示 ${visibleCount}/${totalCount} 个链接`;
+  actions.hidden = false;
+  moveUp.disabled = index === 0;
+  moveDown.disabled = index === state.visibleLinks.length - 1;
+  moveUp.setAttribute("aria-label", `上移 ${link.name}`);
+  moveDown.setAttribute("aria-label", `下移 ${link.name}`);
+  editBtn.setAttribute("aria-label", `编辑 ${link.name}`);
+  deleteBtn.setAttribute("aria-label", `删除 ${link.name}`);
+
+  moveUp.addEventListener("click", () => moveLinkByStep(index, -1));
+  moveDown.addEventListener("click", () => moveLinkByStep(index, 1));
+  editBtn.addEventListener("click", () => openDialog(link));
+  deleteBtn.addEventListener("click", () => deleteLink(link.id));
+  bindCardDragEvents(card, link.id);
+}
+
+function moveLinkByStep(index, step) {
+  const targetIndex = index + step;
+  moveLinkInVisibleOrder(state.visibleLinks[index].id, state.visibleLinks[targetIndex].id);
+
+  const movedCard = refs.grid.children[targetIndex];
+  const selector = step < 0 ? ".move-up-btn" : ".move-down-btn";
+  const moveButton = movedCard.querySelector(`${selector}:not(:disabled)`);
+  (moveButton || movedCard.querySelector(".link-actions button:not(:disabled)")).focus();
 }
 
 function bindCardDragEvents(card, linkId) {
@@ -483,10 +532,7 @@ function bindCardDragEvents(card, linkId) {
     }
   });
 
-  card.addEventListener("dragend", () => {
-    state.draggingLinkId = "";
-    clearDragClasses();
-  });
+  card.addEventListener("dragend", clearDragState);
 
   card.addEventListener("dragover", (event) => {
     if (!state.draggingLinkId || state.draggingLinkId === linkId) {
@@ -512,8 +558,8 @@ function bindCardDragEvents(card, linkId) {
       return;
     }
 
+    clearDragState();
     moveLinkInVisibleOrder(draggingId, linkId);
-    clearDragClasses();
   });
 }
 
@@ -537,11 +583,13 @@ function handleGridDrop(event) {
   }
 
   event.preventDefault();
-  moveLinkToVisibleTail(state.draggingLinkId);
-  clearDragClasses();
+  const draggingId = state.draggingLinkId;
+  clearDragState();
+  moveLinkToVisibleTail(draggingId);
 }
 
-function clearDragClasses() {
+function clearDragState() {
+  state.draggingLinkId = "";
   refs.grid.querySelectorAll(".link-card.is-dragging, .link-card.is-drop-target").forEach((card) => {
     card.classList.remove("is-dragging");
     card.classList.remove("is-drop-target");
@@ -600,6 +648,7 @@ function startLiveClock() {
   const updateClockText = () => {
     const now = new Date();
     const text = CLOCK_FORMATTER.format(now).replace(/\//g, ".");
+    refs.liveClock.dateTime = now.toISOString();
     refs.liveClock.textContent = text;
   };
 

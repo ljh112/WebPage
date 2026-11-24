@@ -25,84 +25,87 @@
     <div class="page-bg"></div>
     <header class="topbar">
       <div class="brand">
-        <span class="brand-dot"></span>
+        <span class="brand-dot" aria-hidden="true"></span>
         <span id="site-title">ljhiokc 的主页</span>
       </div>
-      <div class="topbar-right">
-        <div id="live-clock" class="clock-pill" aria-live="polite"></div>
-        <button id="theme-toggle-btn" class="theme-toggle" type="button" aria-label="切换主题"></button>
-        <nav class="nav-links">
-          <a href="./index.html" aria-current="page">主页</a>
-          <a href="./profile.html">个人信息</a>
-        </nav>
-      </div>
+      <details id="display-settings" class="display-settings">
+        <summary class="theme-toggle">显示设置</summary>
+        <div class="display-options">
+          <time id="live-clock" class="clock-pill"></time>
+          <button id="theme-toggle-btn" class="theme-toggle" type="button" aria-label="切换主题"></button>
+        </div>
+      </details>
     </header>
 
     <main class="container">
       <section class="hero">
         <h1 id="hero-title">常用入口，一页速达</h1>
         <p id="hero-desc">把日常网站与工具收进一个面板，搜索、分类、拖拽排序都更顺手。</p>
-        <p id="hero-status" class="hero-status"></p>
-        <div class="hero-actions">
-          <div class="web-search-group">
-            <label class="engine-picker" for="web-search-engine">
-              <img
-                id="web-search-engine-icon"
-                class="engine-icon"
-                src="./assets/icons/search-engines/google.png"
-                alt=""
-                aria-hidden="true"
-              />
-              <select id="web-search-engine" class="search-engine-select" aria-label="选择搜索引擎">
-                <option value="google">Google</option>
-                <option value="bing">Bing</option>
-                <option value="baidu">百度</option>
-                <option value="duckduckgo">DuckDuckGo</option>
-              </select>
-              <span class="engine-caret" aria-hidden="true">▾</span>
-            </label>
-            <input
-              id="web-search-input"
-              class="search-input web-search-input"
-              type="search"
-              placeholder="输入关键词后按回车"
-              autocomplete="off"
+        <div class="web-search-group" role="search" aria-label="网页搜索">
+          <label class="engine-picker" for="web-search-engine">
+            <img
+              id="web-search-engine-icon"
+              class="engine-icon"
+              src="./assets/icons/search-engines/google.png"
+              alt=""
+              aria-hidden="true"
             />
-            <button id="web-search-btn" class="btn btn-primary" type="button">Go!</button>
+            <select id="web-search-engine" class="search-engine-select" aria-label="选择搜索引擎">
+              <option value="google">Google</option>
+              <option value="bing">Bing</option>
+              <option value="baidu">百度</option>
+              <option value="duckduckgo">DuckDuckGo</option>
+            </select>
+            <span class="engine-caret" aria-hidden="true">▾</span>
+          </label>
+          <input
+            id="web-search-input"
+            class="search-input"
+            type="search"
+            aria-label="网页搜索关键词"
+            placeholder="搜索网页"
+            autocomplete="off"
+          />
+          <button id="web-search-btn" class="btn btn-primary" type="button">搜索</button>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="links-heading">
+        <div class="panel-head">
+          <div class="links-heading">
+            <h2 id="links-heading">快速访问</h2>
+            <span id="link-count" role="status"></span>
           </div>
+          <button id="manage-btn" class="btn" type="button" aria-expanded="false" aria-controls="manage-controls">管理链接</button>
+        </div>
+        <div id="manage-controls" hidden>
+          <div class="manage-actions">
+            <button id="add-link-btn" class="btn btn-primary" type="button">新增链接</button>
+            <button id="export-btn" class="btn" type="button">导出配置</button>
+            <button id="import-btn" class="btn" type="button">导入配置</button>
+            <button id="reset-btn" class="btn btn-danger" type="button">恢复默认</button>
+            <input id="import-file-input" type="file" accept=".json,application/json" hidden />
+          </div>
+          <p class="hint">用箭头<span class="drag-hint">或拖拽</span>调整链接顺序。</p>
+        </div>
+        <div class="link-filters">
           <input
             id="search-input"
             class="search-input"
             type="search"
-            placeholder="筛选链接名称或分类（按 / 快速聚焦）"
+            aria-label="筛选快捷链接"
+            aria-keyshortcuts="/"
+            placeholder="筛选链接"
             autocomplete="off"
           />
-          <button id="add-link-btn" class="btn btn-primary" type="button">新增链接</button>
-          <button id="export-btn" class="btn" type="button">导出配置</button>
-          <button id="import-btn" class="btn" type="button">导入配置</button>
-          <button id="reset-btn" class="btn btn-danger" type="button">恢复默认</button>
-          <input id="import-file-input" type="file" accept=".json,application/json" hidden />
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <h2>分类</h2>
-          <span id="link-count"></span>
-        </div>
-        <div id="category-chips" class="chips"></div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <h2>快速访问</h2>
-          <span class="hint">按数字 1-9 可直接打开前 9 个链接，拖拽卡片可排序</span>
+          <div id="category-chips" class="chips" role="group" aria-label="链接分类"></div>
         </div>
         <div id="links-grid" class="links-grid"></div>
+        <p class="hint keyboard-hint">快捷键：<kbd>/</kbd> 筛选链接，<kbd>1</kbd>–<kbd>9</kbd> 打开当前列表的前 9 个链接</p>
       </section>
     </main>
 
-    <dialog id="link-dialog" class="link-dialog">
+    <dialog id="link-dialog" class="link-dialog" aria-labelledby="dialog-title">
       <form id="link-form" method="dialog">
         <h3 id="dialog-title">新增链接</h3>
         <input id="link-id" type="hidden" />
@@ -134,16 +137,18 @@
     <template id="link-card-template">
       <article class="link-card">
         <a class="link-main" target="_blank" rel="noreferrer noopener">
-          <span class="link-icon"></span>
+          <span class="link-icon" aria-hidden="true"></span>
           <span class="link-meta">
             <strong class="link-name"></strong>
             <small class="link-category"></small>
           </span>
-          <span class="link-index"></span>
+          <span class="link-index" aria-hidden="true"></span>
         </a>
-        <div class="link-actions">
-          <button type="button" class="icon-btn edit-btn" title="编辑">编辑</button>
-          <button type="button" class="icon-btn delete-btn" title="删除">删除</button>
+        <div class="link-actions" hidden>
+          <button type="button" class="icon-btn move-up-btn" title="上移">↑</button>
+          <button type="button" class="icon-btn move-down-btn" title="下移">↓</button>
+          <button type="button" class="icon-btn edit-btn">编辑</button>
+          <button type="button" class="icon-btn delete-btn">删除</button>
         </div>
       </article>
     </template>
